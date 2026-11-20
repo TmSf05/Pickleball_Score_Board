@@ -1,0 +1,267 @@
+import 'package:flutter/material.dart';
+
+void main() {
+  runApp(const PickleballScorerApp());
+}
+
+class PickleballScorerApp extends StatelessWidget {
+  const PickleballScorerApp({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      title: 'Pickleball Score Board',
+      theme: ThemeData(
+        primarySwatch: Colors.green,
+        useMaterial3: true,
+        brightness: Brightness.light,
+      ),
+      home: const ScoreboardPage(),
+      debugShowCheckedModeBanner: false,
+    );
+  }
+}
+
+class ScoreboardPage extends StatefulWidget {
+  const ScoreboardPage({super.key});
+
+  @override
+  State<ScoreboardPage> createState() => _ScoreboardPageState();
+}
+
+class _ScoreboardPageState extends State<ScoreboardPage> {
+  // Game State
+  int teamA = 0;
+  int teamB = 0;
+  int currentServerNumber = 1; // 1 or 2
+
+  // Settings
+  final int winningScore = 11;
+
+  // Helper to check if game is over
+  bool get isGameOver {
+    if (teamA >= winningScore || teamB >= winningScore) {
+      return (teamA - teamB).abs() >= 2;
+    }
+    return false;
+  }
+
+  String get winnerText {
+    if (teamA > teamB) return "Team A Wins!";
+    return "Team B Wins!";
+  }
+
+  void _incrementScore(String team) {
+    if (isGameOver) return;
+
+    setState(() {
+      if (team == 'A') {
+        teamA++;
+      } else {
+        teamB++;
+      }
+
+      // In pickleball, you only switch servers when you lose the rally.
+      // If the serving team scores, they keep serving (and switch sides on court,
+      // but the server number stays the same until they fault).
+      // However, for digital scoring simplicity, we usually just track points.
+      // The "Server Number" (1 or 2) only changes when the serving team LOSES.
+
+      // Logic: Who served? We assume the team with the higher score is NOT necessarily
+      // the server in digital apps unless we track serve possession explicitly.
+      // To keep this simple for DartPad: We will manually toggle server number
+      // via a button, or assume standard rotation logic if we tracked "Who Served".
+
+      // SIMPLIFIED LOGIC FOR THIS APP:
+      // We will NOT auto-switch server numbers on point because we don't know
+      // which team currently holds the serve without complex state.
+      // Instead, we provide a "Switch Server" button for manual control,
+      // which is common in apps where players might forget.
+    });
+  }
+
+  void _switchServer() {
+    if (isGameOver) return;
+    setState(() {
+      currentServerNumber = currentServerNumber == 1 ? 2 : 1;
+    });
+  }
+
+  void _resetGame() {
+    setState(() {
+      teamA = 0;
+      teamB = 0;
+      currentServerNumber = 1;
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text('Pickleball Score'),
+        centerTitle: true,
+        backgroundColor: Colors.green[700],
+        foregroundColor: Colors.white,
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.refresh),
+            onPressed: _resetGame,
+            tooltip: 'Reset Game',
+          ),
+        ],
+      ),
+      body: Column(
+        children: [
+          // Current Call Display
+          Container(
+            width: double.infinity,
+            padding: const EdgeInsets.symmetric(vertical: 20),
+            color: Colors.grey[900],
+            child: Center(
+              child: Column(
+                children: [
+                  const Text(
+                    "CURRENT CALL",
+                    style: TextStyle(
+                      color: Colors.grey,
+                      fontSize: 14,
+                      letterSpacing: 2,
+                    ),
+                  ),
+                  const SizedBox(height: 8),
+                  Text(
+                    "$teamA - $teamB - $currentServerNumber",
+                    style: const TextStyle(
+                      color: Colors.white,
+                      fontSize: 48,
+                      fontWeight: FontWeight.bold,
+                      fontFamily: 'monospace',
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
+
+          // Score Area
+          Expanded(
+            child: Row(
+              children: [
+                // Team A
+                Expanded(
+                  child: _buildTeamColumn(
+                    context,
+                    "Team A",
+                    teamA,
+                    Colors.blue,
+                    () => _incrementScore('A'),
+                  ),
+                ),
+
+                // Divider
+                Container(width: 1, color: Colors.grey[300]),
+
+                // Team B
+                Expanded(
+                  child: _buildTeamColumn(
+                    context,
+                    "Team B",
+                    teamB,
+                    Colors.red,
+                    () => _incrementScore('B'),
+                  ),
+                ),
+              ],
+            ),
+          ),
+
+          // Controls Area
+          Container(
+            padding: const EdgeInsets.all(16),
+            color: Colors.white,
+            child: Column(
+              children: [
+                ElevatedButton.icon(
+                  onPressed: isGameOver ? null : _switchServer,
+                  icon: const Icon(Icons.swap_horiz),
+                  label: const Text("Switch Server (1 ↔ 2)"),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Colors.grey[800],
+                    foregroundColor: Colors.white,
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 30,
+                      vertical: 15,
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 10),
+                if (isGameOver)
+                  Padding(
+                    padding: const EdgeInsets.only(top: 10),
+                    child: Text(
+                      winnerText,
+                      style: const TextStyle(
+                        fontSize: 24,
+                        fontWeight: FontWeight.bold,
+                        color: Colors.green,
+                      ),
+                    ),
+                  ),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildTeamColumn(
+    BuildContext context,
+    String name,
+    int score,
+    Color color,
+    VoidCallback onTap,
+  ) {
+    return GestureDetector(
+      onTap: onTap,
+      child: Container(
+        color: Colors.white,
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Text(
+              name,
+              style: TextStyle(
+                fontSize: 24,
+                fontWeight: FontWeight.bold,
+                color: color,
+              ),
+            ),
+            const SizedBox(height: 20),
+            Text(
+              "$score",
+              style: TextStyle(
+                fontSize: 80,
+                fontWeight: FontWeight.w300,
+                color: Colors.black87,
+              ),
+            ),
+            const SizedBox(height: 10),
+            Container(
+              padding: const EdgeInsets.all(8),
+              decoration: BoxDecoration(
+                color: color.withOpacity(0.1),
+                borderRadius: BorderRadius.circular(20),
+              ),
+              child: Text(
+                "+ Point",
+                style: TextStyle(color: color, fontWeight: FontWeight.bold),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
