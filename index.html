@@ -1,31 +1,84 @@
-name: pickleball_scorer
-description: A simple Pickleball scoring application built with Flutter.
-publish_to: 'none' 
-version: 1.0.0+1
+<!DOCTYPE html>
+<html>
+<head>
+  <!-- 
+    Base href is replaced by Flutter during the build process. 
+    If deploying to a subdirectory (like GitHub Pages), change this to '/your-repo-name/'.
+  -->
+  <base href="$FLUTTER_BASE_HREF">
 
-environment:
-  # Ensure this matches your installed Flutter/Dart SDK version
-  sdk: '>=3.3.0 <4.0.0'
+  <meta charset="UTF-8">
+  <meta content="IE=Edge" http-equiv="X-UA-Compatible">
+  <meta name="description" content="A Pickleball Scoring App built with Flutter.">
 
-dependencies:
-  flutter:
-    sdk: flutter
+  <!-- iOS meta tags & icons -->
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black">
+  <meta name="apple-mobile-web-app-title" content="Pickleball Scorer">
+  <link rel="apple-touch-icon" href="icons/Icon-192.png">
+
+  <!-- Favicon -->
+  <link rel="icon" type="image/png" href="favicon.png"/>
+
+  <title>Pickleball Scorer</title>
+  <link rel="manifest" href="manifest.json">
+
+  <style>
+    /* Basic loading screen styling while the Flutter engine initializes */
+    body {
+      margin: 0;
+      padding: 0;
+      background-color: #121212;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      font-family: sans-serif;
+      color: #ffffff;
+    }
+    .loader {
+      border: 4px solid #333;
+      border-top: 4px solid #4CAF50; /* Pickleball Green */
+      border-radius: 50%;
+      width: 40px;
+      height: 40px;
+      animation: spin 1s linear infinite;
+      margin-right: 15px;
+    }
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+  </style>
+</head>
+<body>
+  <!-- Loading indicator -->
+  <div id="loading">
+    <div class="loader"></div>
+    <span>Loading Pickleball Scorer...</span>
+  </div>
+
+  <!-- Flutter web engine script -->
+  <script src="flutter.js" defer></script>
   
-  # Adds Cupertino icons (optional, but included in standard Flutter projects)
-  cupertino_icons: ^1.0.6
-
-dev_dependencies:
-  flutter_test:
-    sdk: flutter
-  flutter_lints: ^3.0.0
-
-flutter:
-  uses-material-design: true
-  
-  # If you add custom fonts or images later, declare them here:
-  # assets:
-  #   - images/
-  # fonts:
-  #   - family: CustomFont
-  #     fonts:
-  #       - asset: fonts/CustomFont-Regular.ttf
+  <script>
+    window.addEventListener('load', function(ev) {
+      var loading = document.querySelector('#loading');
+      
+      // Download and initialize the Flutter web engine
+      _flutter.loader.loadEntrypoint({
+        serviceWorker: {
+          serviceWorkerVersion: serviceWorkerVersion,
+        },
+        onEntrypointLoaded: function(engineInitializer) {
+          engineInitializer.initializeEngine().then(function(appRunner) {
+            // Hide the loading screen once the app is ready
+            loading.style.display = 'none';
+            appRunner.runApp();
+          });
+        }
+      });
+    });
+  </script>
+</body>
+</html>
