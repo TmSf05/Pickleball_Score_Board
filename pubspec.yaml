@@ -1,0 +1,31 @@
+name: pickleball_scorer
+description: A simple Pickleball scoring application built with Flutter.
+publish_to: 'none' 
+version: 1.0.0+1
+
+environment:
+  # Ensure this matches your installed Flutter/Dart SDK version
+  sdk: '>=3.3.0 <4.0.0'
+
+dependencies:
+  flutter:
+    sdk: flutter
+  
+  # Adds Cupertino icons (optional, but included in standard Flutter projects)
+  cupertino_icons: ^1.0.6
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^3.0.0
+
+flutter:
+  uses-material-design: true
+  
+  # If you add custom fonts or images later, declare them here:
+  # assets:
+  #   - images/
+  # fonts:
+  #   - family: CustomFont
+  #     fonts:
+  #       - asset: fonts/CustomFont-Regular.ttf
